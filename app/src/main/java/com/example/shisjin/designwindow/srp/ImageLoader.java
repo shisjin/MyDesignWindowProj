@@ -2,7 +2,6 @@ package com.example.shisjin.designwindow.srp;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.LruCache;
 import android.widget.ImageView;
 
 import java.net.HttpURLConnection;
@@ -15,35 +14,32 @@ import java.util.concurrent.Executors;
  */
 
 public class ImageLoader {
-    /*图片缓存*/
-    LruCache<String ,Bitmap> mImageCache;
+    ImageCache mImageCache;
     //线程池，线程数量CPU的数量
     ExecutorService mExecutorService;
     public ImageLoader(){
-         initImageCache();
+        mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        mImageCache= new ImageCache();
     }
 
-    private void initImageCache() {
-        mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        //计算可使用的最大内存
-        int maxMemory = (int) (Runtime.getRuntime().maxMemory()/1024);
-        //取四分之一的可用内存作为缓存
-        int cacheSize= maxMemory/4;
-        mImageCache=new LruCache<String, Bitmap>(cacheSize){
-            @Override
-            protected int sizeOf(String key, Bitmap bitmap) {
-                return bitmap.getRowBytes()*bitmap.getHeight()/1024;
-            }
-        };
-    }
     public void dispalyImage(final String url , final ImageView imageView){
+        //首先从缓存里面取，如果为空就进行下载
+        Bitmap bitmap = mImageCache.get(url);
+        if (bitmap!=null){
+            mSetDisplayImage.setImageView(bitmap);
+            return;
+        }
         imageView.setTag(url);
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
            Bitmap bitmap= downloadImage(url);
                 if (bitmap==null)return;
-                if (imageView.getTag().equals(url))imageView.setImageBitmap(bitmap);
+                if (imageView.getTag().equals(url)){
+                    mSetDisplayImage.setImageView(bitmap);
+                   // imageView.setImageBitmap(bitmap);
+                }
+                //保存到缓存中
                 mImageCache.put(url,bitmap);
             }
         });
@@ -62,6 +58,15 @@ public class ImageLoader {
             urlConnection.disconnect();
         }
         return  bitmap;
+    }
+
+    public void setlisetnerLoad(SetDisplayImage mSetDisplayImage){
+     this.mSetDisplayImage=mSetDisplayImage;
+    }
+    private SetDisplayImage  mSetDisplayImage;
+
+    public interface  SetDisplayImage{
+        void  setImageView(Bitmap bitmap);
     }
 
 }
