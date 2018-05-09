@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imageLoader= new ImageLoader();
         loaderImage.setOnClickListener(this);
         imageLoader.setIsUseDiskCahce(true);
+        imageLoader.setIsUseDoubleCahec(true);
         imageLoader.setlisetnerLoad(new ImageLoader.SetDisplayImage() {
             @Override
             public void setImageView(Bitmap bitmap) {
