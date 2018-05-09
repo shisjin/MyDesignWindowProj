@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgeview = (ImageView) findViewById(R.id.imgeview);
         imageLoader= new ImageLoader();
         loaderImage.setOnClickListener(this);
+        imageLoader.setIsUseDiskCahce(true);
         imageLoader.setlisetnerLoad(new ImageLoader.SetDisplayImage() {
             @Override
             public void setImageView(Bitmap bitmap) {
