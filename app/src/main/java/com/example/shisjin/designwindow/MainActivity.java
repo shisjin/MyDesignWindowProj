@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.shisjin.designwindow.srp.DoubleCache;
 import com.example.shisjin.designwindow.srp.ImageLoader;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -45,9 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loaderImage = (TextView) findViewById(R.id.loaderImage);
         imgeview = (ImageView) findViewById(R.id.imgeview);
         imageLoader= new ImageLoader();
+        //imageLoader.setImageCache(new DiskCache());
+        imageLoader.setImageCache(new DoubleCache());
         loaderImage.setOnClickListener(this);
-        imageLoader.setIsUseDiskCahce(true);
-        imageLoader.setIsUseDoubleCahec(true);
         imageLoader.setlisetnerLoad(new ImageLoader.SetDisplayImage() {
             @Override
             public void setImageView(Bitmap bitmap) {

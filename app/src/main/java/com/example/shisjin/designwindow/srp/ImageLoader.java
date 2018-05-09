@@ -15,38 +15,29 @@ import java.util.concurrent.Executors;
 
 public class ImageLoader {
     //内存缓存
-    ImageCache mImageCache;
-    //SD卡缓存
-    DiskCache mDiskCache;
-    //双缓存
-    DoubleCache mDoubleCache;
+   private ImageCache mImageCahe ;
     //线程池，线程数量CPU的数量
     ExecutorService mExecutorService;
-    //是否使用SD卡缓存
-    boolean isUseDiskCache=false;
-    //使用双缓存
-    boolean isUseDoubleCache= false;
-    //
     public ImageLoader(){
         mExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        mImageCache= new ImageCache();
-        mDiskCache= new DiskCache();
-        mDoubleCache= new DoubleCache();
+        mImageCahe = new  MemoryCache();
+    }
+    /*注入缓存实现*/
+    public void setImageCache(ImageCache cache){
+        this.mImageCahe= cache;
     }
 
     public void dispalyImage(final String url , final ImageView imageView){
-        Bitmap bitmap=null;
-        if (isUseDoubleCache){
-          bitmap=  mDoubleCache.get(url);
-        }else if (isUseDiskCache) {
-            bitmap = mDiskCache.get(url);
-        }else {
-            bitmap  = mImageCache.get(url);
-        }
+        Bitmap bitmap  = mImageCahe.get(url);
         if (bitmap!=null){
             mSetDisplayImage.setImageView(bitmap);
             return;
         }
+        //没有图片缓存，提交到线程池中下载图片
+        submitLoadRequest(url, imageView);
+    }
+
+    private void submitLoadRequest(final String url, final ImageView imageView) {
         imageView.setTag(url);
         //没有缓存，则提交给线程池进行下载
         mExecutorService.submit(new Runnable() {
@@ -58,23 +49,10 @@ public class ImageLoader {
                     mSetDisplayImage.setImageView(bitmap);
                    // imageView.setImageBitmap(bitmap);
                 }
-                if (isUseDoubleCache){
-                    mDoubleCache.put(url,bitmap);
-                    return;
-                }
                 //保存到缓存中
-                mDiskCache.put(url,bitmap);
-                mImageCache.put(url,bitmap);
+                mImageCahe.put(url,bitmap);
             }
         });
-    }
-
-    public void  setIsUseDiskCahce(boolean isUseDiskCache){
-        this.isUseDiskCache=isUseDiskCache;
-    }
-
-    public void setIsUseDoubleCahec(boolean isUseDoubleCache){
-     this.isUseDoubleCache=isUseDoubleCache;
     }
 
     private Bitmap downloadImage(String url) {

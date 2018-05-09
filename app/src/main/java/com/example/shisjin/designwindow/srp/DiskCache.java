@@ -12,19 +12,19 @@ import java.io.IOException;
 /**
  * Created by Administrator on 2018/5/9.
  */
-
-public class DiskCache {
+/*SD卡缓存*/
+public class DiskCache implements ImageCache {
     public static final String ABSOLUTEPATH = Environment.getExternalStorageDirectory()
             .getAbsolutePath();//内存卡路径
     //手机自带储存路径
     public static final String DATADIRECTORY = Environment.getDataDirectory().getAbsolutePath();
-
     //从缓存中获取图片
-
+    @Override
     public Bitmap get(String url){
         return BitmapFactory.decodeFile(ABSOLUTEPATH+"/CacheImg/"+url.substring(url.indexOf("j"),url.length())+"img"+".jpg");
     }
     //将图片缓存到内存中
+    @Override
     public void  put(String url ,Bitmap bitmap){
         File file =new File(ABSOLUTEPATH+"/CacheImg/");
         if (!file.exists()){
@@ -47,8 +47,6 @@ public class DiskCache {
                 }
             }
         }
-
     }
-
 
 }
