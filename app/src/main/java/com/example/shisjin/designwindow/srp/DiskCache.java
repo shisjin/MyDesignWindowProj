@@ -7,7 +7,6 @@ import android.os.Environment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by Administrator on 2018/5/9.
@@ -39,13 +38,7 @@ public class DiskCache implements ImageCache {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }finally {
-            if (fileOutputStream!=null){
-                try {
-                    fileOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+          CloseUtils.closeQuietly(fileOutputStream);
         }
     }
 
